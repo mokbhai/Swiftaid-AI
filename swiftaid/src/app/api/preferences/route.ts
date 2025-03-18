@@ -16,16 +16,12 @@ export async function POST(req: Request) {
     const collection = db.collection("preferences");
 
     // Update or insert preferences
-    const result = await collection.updateOne(
-      { userEmail: session.user.email },
+    const result = await collection.insertOne(
       {
-        $set: {
-          ...data,
-          userEmail: session.user.email,
-          updatedAt: new Date(),
-        },
+        ...data,
+        userEmail: session.user.email,
+        updatedAt: new Date(),
       },
-      { upsert: true }
     );
 
     return NextResponse.json({ success: true, result });

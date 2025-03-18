@@ -22,7 +22,7 @@ export async function GET() {
 
 
     // Create prompt for Gemini
-    const prompt = `As a lead generation expert, analyze this user preference data:
+    const prompt = `As a lead generation expert, analyze this user preference data. Please do not miss any data:
     ${JSON.stringify(preferences, null)}
 
     Please provide data in tabular format:
