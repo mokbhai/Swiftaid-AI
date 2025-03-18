@@ -14,6 +14,12 @@ label_encoders = {}
 scaler = None
 model = None
 
+def clean_value(val):
+    """Clean value for JSON serialization"""
+    if pd.isna(val) or pd.isnull(val):
+        return None
+    return val
+
 def preprocess_data(data):
     """Preprocess the input data for model prediction."""
     # Convert list of dictionaries to DataFrame
@@ -59,6 +65,17 @@ def preprocess_data(data):
         "high": 3
     }
     
+    # Fill NaN values with defaults
+    df["income"] = df["income"].fillna("0-30000")
+    df["budget"] = df["budget"].fillna("medium")
+    df["distance"] = df["distance"].fillna("0-300")
+    df["duration"] = df["duration"].fillna("0-3 months")
+    df["safety"] = df["safety"].fillna("medium")
+    df["startDate"] = df["startDate"].fillna(pd.Timestamp.now().strftime("%Y-%m-%d"))
+    df["foodPreferences"] = df["foodPreferences"].fillna("[]").apply(lambda x: [] if x == "[]" else x)
+    df["transportType"] = df["transportType"].fillna("[]").apply(lambda x: [] if x == "[]" else x)
+    df["accommodationType"] = df["accommodationType"].fillna("[]").apply(lambda x: [] if x == "[]" else x)
+    
     # Apply numeric mappings
     df["income_score"] = df["income"].map(income_mapping).fillna(15000)
     df["budget_score"] = df["budget"].map(budget_mapping).fillna(1)
@@ -67,7 +84,7 @@ def preprocess_data(data):
     df["safety_score"] = df["safety"].map(safety_mapping).fillna(1)
     
     # Calculate days until start
-    df["days_until_start"] = (pd.to_datetime(df["startDate"]) - pd.Timestamp.now()).dt.days
+    df["days_until_start"] = (pd.to_datetime(df["startDate"]) - pd.Timestamp.now()).dt.days.fillna(0)
     
     # Process array fields
     df["food_score"] = df["foodPreferences"].apply(lambda x: len(x) if isinstance(x, list) else 0)
@@ -158,16 +175,16 @@ def rank_customers():
         for _, row in df.iterrows():
             rankings.append({
                 "rank": int(row["rank"]),
-                "email": row["email"],
-                "phone": row["phone"],
+                "email": clean_value(row["email"]),
+                "phone": clean_value(row["phone"]),
                 "likelihood": float(row["likelihood"]),
                 "likelihood_percentage": f"{row['likelihood'] * 100:.1f}%",
-                "current_city": row["currentCity"],
-                "target_city": row["targetCity"],
-                "budget": row["budget"],
-                "duration": row["duration"]
+                "current_city": clean_value(row["currentCity"]),
+                "target_city": clean_value(row["targetCity"]),
+                "budget": clean_value(row["budget"]),
+                "duration": clean_value(row["duration"])
             })
-        
+
         return jsonify({
             "success": True,
             "rankings": rankings,
@@ -184,6 +201,8 @@ def rank_customers():
 
     except Exception as e:
         print(f"Error processing request: {str(e)}")  # Add debug print
+        import traceback
+        traceback.print_exc()  # Print full traceback
         return jsonify({
             "success": False,
             "error": str(e)
