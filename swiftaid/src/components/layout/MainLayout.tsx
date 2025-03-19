@@ -40,14 +40,6 @@ export default function MainLayout({
                   >
                     Preferences
                   </Link>
-                  <Link
-                    href="/profile"
-                    className={`text-gray-600 hover:text-gray-900 ${
-                      pathname === "/profile" ? "font-semibold" : ""
-                    }`}
-                  >
-                    Profile
-                  </Link>
                 </>
               ) : (
                 <Link

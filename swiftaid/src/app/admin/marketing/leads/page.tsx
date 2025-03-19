@@ -169,7 +169,7 @@ export default function MarketingLeadsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 text-black">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Marketing Leads</h1>
         <div className="flex gap-4">

@@ -97,15 +97,6 @@ export default function PreferencesForm() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Tell us about your preferences
-        </h1>
-        <p className="text-lg text-gray-600">
-          Help us understand your travel preferences so we can provide you with
-          the best recommendations for your next adventure.
-        </p>
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-12">
         {error && <div className="text-sm text-red-600 mb-4">{error}</div>}
