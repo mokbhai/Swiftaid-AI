@@ -21,7 +21,7 @@ export async function GET() {
     if (!modelResponse.ok) {
       throw new Error("Failed to get model analysis");
     }
-    console.log(modelResponse);
+    // console.log(modelResponse);
     const modelData = await modelResponse.json();
 
     return NextResponse.json(modelData);

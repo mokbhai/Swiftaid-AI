@@ -49,7 +49,7 @@ export default function PreferencesForm() {
       setIsLoading(true);
       setError(null);
 
-      console.log(formData);
+      // console.log(formData);
 
       const response = await fetch("/api/preferences", {
         method: "POST",

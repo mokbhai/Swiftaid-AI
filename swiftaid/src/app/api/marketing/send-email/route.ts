@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generatePersonalizedEmail } from "@/lib/gemini";
-import { sendEmail } from "@/lib/email";
 import { LeadEmailData } from "@/types/email";
+import { sendTrackedEmail } from "@/lib/actions/emailActions";
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const emailContent = await generatePersonalizedEmail(leadData);
     // console.log(emailContent);
     // Send the email
-    const result = await sendEmail({
+    const result = await sendTrackedEmail({
       to: leadData.email,
       subject: emailContent.subject,
       html: emailContent.body,
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",
-      messageId: result.messageId,
+      messageId: result.emailId,
     });
   } catch (error: any) {
     console.error("Error sending marketing email:", error);

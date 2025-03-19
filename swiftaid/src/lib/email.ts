@@ -17,8 +17,8 @@ export async function sendEmail(emailData: EmailData) {
       from: `"SwiftAid" <${process.env.SMTP_USER}>`,
       to: emailData.to,
       subject: emailData.subject,
-      text: emailData.text,
-      html: emailData.html,
+      text: emailData.text || "",
+      html: emailData.html || "",
     });
 
     console.log("Email sent:", info.messageId);

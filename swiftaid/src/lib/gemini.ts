@@ -46,7 +46,7 @@ export async function generatePersonalizedEmail(leadData: LeadEmailData) {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    console.log(text);
+    // console.log(text);
     // Extract HTML content between ```html and ``` markers
     const htmlMatch = text.match(/```html\n([\s\S]*?)\n```/);
     const emailContent = htmlMatch ? htmlMatch[1] : text;
