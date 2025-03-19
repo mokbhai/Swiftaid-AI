@@ -116,37 +116,55 @@ def preprocess_data(data):
     
     return X_scaled, df
 
-def calculate_likelihood(X_scaled):
-    """Calculate likelihood scores using a simple weighted approach."""
+def calculate_score(X_scaled):
+    """Calculate exact scores for each customer based on their preferences and characteristics."""
     # Initialize weights for different factors
     weights = {
-        "income": 0.2,
-        "budget": 0.15,
-        "duration": 0.2,
-        "safety": 0.1,
-        "distance": 0.1,
-        "days_until": 0.1,
-        "preferences": 0.15
+        "income": 20,      # 20 points max
+        "budget": 15,      # 15 points max
+        "duration": 20,    # 20 points max
+        "safety": 10,      # 10 points max
+        "distance": 10,    # 10 points max
+        "days_until": 10,  # 10 points max
+        "preferences": 15  # 15 points max
     }
     
     # Calculate composite score
     scores = np.zeros(X_scaled.shape[0])
-    scores += weights["income"] * X_scaled[:, 0]  # income_score
-    scores += weights["budget"] * X_scaled[:, 1]  # budget_score
-    scores += weights["distance"] * X_scaled[:, 2]  # distance_score
-    scores += weights["duration"] * X_scaled[:, 3]  # duration_score
-    scores += weights["safety"] * X_scaled[:, 4]  # safety_score
-    scores += weights["days_until"] * X_scaled[:, 5]  # days_until_start
     
-    # Normalize preferences scores
-    pref_scores = np.mean(X_scaled[:, 6:], axis=1)  # food, transport, accommodation scores
-    scores += weights["preferences"] * pref_scores
+    # Income score (0-20 points)
+    # Higher income = higher score
+    scores += weights["income"] * (X_scaled[:, 0] + 2) / 4  # Normalize to 0-20 range
     
-    # Convert to probabilities using softmax
-    exp_scores = np.exp(scores - np.max(scores))
-    probabilities = exp_scores / exp_scores.sum()
+    # Budget score (0-15 points)
+    # Higher budget = higher score
+    scores += weights["budget"] * (X_scaled[:, 1] + 1) / 2  # Normalize to 0-15 range
     
-    return probabilities
+    # Distance score (0-10 points)
+    # Lower distance = higher score
+    scores += weights["distance"] * (1 - (X_scaled[:, 2] + 2) / 4)  # Invert and normalize
+    
+    # Duration score (0-20 points)
+    # Longer duration = higher score
+    scores += weights["duration"] * (X_scaled[:, 3] + 2) / 4  # Normalize to 0-20 range
+    
+    # Safety score (0-10 points)
+    # Higher safety = higher score
+    scores += weights["safety"] * (X_scaled[:, 4] + 1) / 2  # Normalize to 0-10 range
+    
+    # Days until start score (0-10 points)
+    # Sooner start = higher score
+    scores += weights["days_until"] * (1 - (X_scaled[:, 5] + 2) / 4)  # Invert and normalize
+    
+    # Preferences score (0-15 points)
+    # More preferences = higher score
+    pref_scores = np.mean(X_scaled[:, 6:], axis=1)  # Average of food, transport, accommodation scores
+    scores += weights["preferences"] * (pref_scores + 2) / 4  # Normalize to 0-15 range
+    
+    # Ensure scores are between 0 and 100
+    scores = np.clip(scores, 0, 100)
+    
+    return scores
 
 @app.route('/rank_customers', methods=['POST'])
 def rank_customers():
@@ -162,12 +180,12 @@ def rank_customers():
         # Preprocess the data
         X_scaled, df = preprocess_data(data)
         
-        # Calculate likelihood scores
-        probabilities = calculate_likelihood(X_scaled)
+        # Calculate scores
+        scores = calculate_score(X_scaled)
         
         # Create rankings
-        df["likelihood"] = probabilities
-        df = df.sort_values("likelihood", ascending=False).reset_index(drop=True)
+        df["score"] = scores
+        df = df.sort_values("score", ascending=False).reset_index(drop=True)
         df["rank"] = df.index + 1
         
         # Format results
@@ -177,8 +195,8 @@ def rank_customers():
                 "rank": int(row["rank"]),
                 "email": clean_value(row["email"]),
                 "phone": clean_value(row["phone"]),
-                "likelihood": float(row["likelihood"]),
-                "likelihood_percentage": f"{row['likelihood'] * 100:.1f}%",
+                "score": float(row["score"]),
+                "score_percentage": f"{row['score']:.1f}%",
                 "current_city": clean_value(row["currentCity"]),
                 "target_city": clean_value(row["targetCity"]),
                 "budget": clean_value(row["budget"]),

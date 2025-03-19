@@ -21,11 +21,13 @@
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.18",
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.5.0",
     "markdown-to-jsx": "^7.7.4",
     "mongodb": "^6.14.2",
     "next": "15.2.3",
     "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.0",
     "postcss": "^8.4.35",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -35,6 +37,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/nodemailer": "^6.4.17",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "ts-node": "^10.9.2"
